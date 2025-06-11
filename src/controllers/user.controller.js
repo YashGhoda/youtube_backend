@@ -109,7 +109,7 @@ const loginUser = asyncHandler(async(req,res) =>{
     }
 
     const user = await User.findOne({
-        $or:[{usernamr},{email}]
+        $or:[{username},{email}]
     })
 
     if(!user){
@@ -147,6 +147,18 @@ const logoutUser = asyncHandler(async(req,res) =>{
     // get user from request
     // remove refresh and access token from db
     // send response
+    await User.findByIdAndUpdate(req.user._id,{$set:{refreshToken:undefined}},{new:true})
+
+    const options = {
+        httpOnly:true,
+        secure:true
+    }
+    return res
+    .status(200)
+    .clearCookie("refreshToken",options)
+    .clearCookie("accessToken",options)
+    .json(new ApiResponse(200,{},"User Logged Out Successfully!"))
+
 })
 
 
